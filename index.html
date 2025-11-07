@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>我的资料库</title>
+  <meta name="description" content="一个用 GitHub Pages 搭建的免费资料库，支持文字、图片、视频、搜索与留言" />
+  <style>
+    :root{
+      --bg:#0b0c10; --card:#121318; --text:#eaecef; --muted:#a3aab8; --brand:#5aa9e6; --brand-2:#7fc8f8; --border:#22242d;
+    }
+    .light{ --bg:#ffffff; --card:#f7f8fb; --text:#111827; --muted:#4b5563; --brand:#2563eb; --brand-2:#60a5fa; --border:#e5e7eb; }
+    *{ box-sizing:border-box }
+    body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; background:var(--bg); color:var(--text); }
+    header{ position:sticky; top:0; backdrop-filter:saturate(180%) blur(8px); background:color-mix(in hsl, var(--bg), transparent 40%); border-bottom:1px solid var(--border); z-index:50 }
+    .wrap{ max-width:1100px; margin:auto; padding:16px; }
+    .row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+    .brand{ font-weight:800; letter-spacing:.5px }
+    nav a{ color:var(--text); text-decoration:none; opacity:.85; padding:8px 10px; border-radius:10px }
+    nav a.active, nav a:hover{ background:var(--card); opacity:1 }
+    .search{ flex:1; min-width:220px; display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); padding:8px 12px; border-radius:12px }
+    .search input{ flex:1; border:none; outline:none; background:transparent; color:var(--text) }
+    .btn{ background:var(--brand); color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer }
+    .btn.secondary{ background:transparent; border:1px solid var(--border); color:var(--text) }
+
+    main{ padding:28px 16px 60px }
+    h1{ margin:.2rem 0 1rem; font-size:28px }
+    .muted{ color:var(--muted) }
+
+    .grid{ display:grid; grid-template-columns:repeat( auto-fill, minmax(240px,1fr) ); gap:16px }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; display:flex; flex-direction:column }
+    .card .thumb{ aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; background:#0f1116; font-size:12px; color:#9aa3b2 }
+    .card img{ width:100%; height:100%; object-fit:cover }
+    .card .body{ padding:12px }
+    .card h3{ margin:0 0 6px; font-size:16px }
+    .tag{ display:inline-block; font-size:12px; padding:2px 8px; border:1px solid var(--border); border-radius:999px; margin-right:6px; color:var(--muted) }
+    .card a{ text-decoration:none; color:var(--brand-2) }
+
+    .section{ display:none }
+    .section.active{ display:block }
+    .tips{ background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; margin:18px 0 }
+    .tips code{ background:#0f1116; padding:2px 6px; border-radius:6px }
+
+    footer{ text-align:center; color:var(--muted); padding:32px 0; border-top:1px solid var(--border) }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap row">
+      <div class="brand">📚 我的资料库</div>
+      <nav class="row" id="nav">
+        <a href="#all" data-target="all" class="active">全部</a>
+        <a href="#images" data-target="images">图片</a>
+        <a href="#videos" data-target="videos">视频</a>
+        <a href="#guide" data-target="guide">使用说明</a>
+        <a href="#guestbook" data-target="guestbook">留言</a>
+      </nav>
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/></svg>
+        <input id="q" placeholder="搜索标题、标签或描述…" />
+      </div>
+      <button id="theme" class="btn secondary" title="切换明暗">切换主题</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1>欢迎！<span class="muted">这是一个用 GitHub Pages 搭建的免费资料网站。</span></h1>
+
+    <!-- 全部资料 -->
+    <section id="sec-all" class="section active">
+      <div class="grid" id="list-all"></div>
+    </section>
+
+    <!-- 图片 -->
+    <section id="sec-images" class="section">
+      <div class="grid" id="list-images"></div>
+    </section>
+
+    <!-- 视频 -->
+    <section id="sec-videos" class="section">
+      <div class="grid" id="list-videos"></div>
+    </section>
+
+    <!-- 使用说明 -->
+    <section id="sec-guide" class="section">
+      <div class="tips">
+        <h3>如何新增一条资料？（最简单）</h3>
+        <ol>
+          <li>在仓库中新建文件夹：<code>docs/</code>、<code>images/</code>、<code>videos/</code>（可选）。</li>
+          <li>把你的 PDF、图片、MP4 等文件上传进去。</li>
+          <li>编辑本页源码，找到 <code>const items = [ ... ]</code>，仿照示例新增一条即可。</li>
+        </ol>
+        <p class="muted">（进阶）以后你也可以把数据拆成 <code>data/items.json</code> 再用 fetch 载入。</p>
+      </div>
+
+      <div class="tips">
+        <h3>站内搜索</h3>
+        <p>上方搜索框支持按标题、标签、描述即时过滤，无需后端。</p>
+      </div>
+
+      <div class="tips">
+        <h3>留言/评论（utterances）</h3>
+        <ol>
+          <li>给你的仓库安装 GitHub App：<a href="https://github.com/apps/utterances" target="_blank">utterances</a>。</li>
+          <li>确保仓库是公开（Public），并在下方“留言”板块保留脚本配置即可使用——评论会同步到仓库 Issues。</li>
+        </ol>
+      </div>
+
+      <div class="tips">
+        <h3>自定义风格</h3>
+        <p>点击右上角“切换主题”即可在明/暗之间切换。也可调整页面顶部 <code>:root</code> 中的颜色变量。</p>
+      </div>
+    </section>
+
+    <!-- 留言板 -->
+    <section id="sec-guestbook" class="section">
+      <script src="https://utteranc.es/client.js"
+        repo="yy-1108/yy-1108.github.io"
+        issue-term="pathname"
+        label="💬 comment"
+        theme="github-dark"
+        crossorigin="anonymous"
+        async>
+      </script>
+      <noscript>请开启 JavaScript 以加载评论。</noscript>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">© <span id="year"></span> 我的资料库 · GitHub Pages</div>
+  </footer>
+
+  <script>
+    // ====== 数据：把你的资料按下面格式往里加 ======
+    const items = [
+      {
+        title: "欢迎文档（PDF 示例）",
+        type: "doc",
+        url: "docs/welcome.pdf",
+        desc: "把你的 PDF 放到 docs/ 里，这里会直接下载或在线打开（浏览器支持时）",
+        tags: ["示例", "PDF", "入门"]
+      },
+      {
+        title: "风景照片（图片示例）",
+        type: "image",
+        url: "images/photo1.jpg",
+        thumb: "images/photo1.jpg",
+        desc: "把图片放到 images/ 里，缩略图 thumb 可不写（会用 url 代替）",
+        tags: ["图片", "示例"]
+      },
+      {
+        title: "演示视频（MP4 示例）",
+        type: "video",
+        url: "videos/demo.mp4",
+        thumb: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+        desc: "把 MP4 放到 videos/ 里即可播放。也可用 YouTube 链接（见下一条）",
+        tags: ["视频", "本地"]
+      },
+      {
+        title: "YouTube 示例",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        desc: "如果是 YouTube 链接，会用 iframe 嵌入播放。国内网络可能无法访问。",
+        tags: ["视频", "YouTube"]
+      }
+    ];
+
+    // ====== 工具函数 ======
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+
+    function match(q, item){
+      if(!q) return true;
+      q = q.toLowerCase();
+      const hay = [item.title, item.desc, ...(item.tags||[])].join(" ").toLowerCase();
+      return hay.includes(q);
+    }
+
+    function isYouTube(url){ return /youtube\.com\/.+v=|youtu\.be\//.test(url); }
+    function youTubeId(url){
+      const m = url.match(/(?:v=|youtu\.be\/)([\w-]{6,})/);
+      return m ? m[1] : "";
+    }
+
+    function cardTpl(item){
+      const thumb = item.thumb || (item.type === 'image' ? item.url : '');
+      const tags = (item.tags||[]).map(t=>`<span class="tag">#${t}</span>`).join("");
+
+      // 视频卡片：支持 MP4 或 YouTube
+      if(item.type === 'video'){
+        let media = '';
+        if(isYouTube(item.url)){
+          const id = youTubeId(item.url);
+          media = `<div class="thumb"><iframe width="100%" height="100%" style="border:0" src="https://www.youtube.com/embed/${id}" allowfullscreen loading="lazy"></iframe></div>`;
+        }else{
+          media = `<div class="thumb"><video controls preload="metadata" style="width:100%;height:100%"><source src="${item.url}"></video></div>`;
+        }
+        return `<article class="card">
+          ${media}
+          <div class="body">
+            <h3>${item.title}</h3>
+            <p class="muted">${item.desc||''}</p>
+            <div>${tags}</div>
+          </div>
+        </article>`;
+      }
+
+      // 图片卡片
+      if(item.type === 'image'){
+        return `<article class="card">
+          <div class="thumb">${thumb ? `<img src="${thumb}" alt="${item.title}" loading="lazy"/>` : '图片'}</div>
+          <div class="body">
+            <h3>${item.title}</h3>
+            <p class="muted">${item.desc||''}</p>
+            <div>${tags}</div>
+            <p><a href="${item.url}" target="_blank">查看原图</a></p>
+          </div>
+        </article>`;
+      }
+
+      // 文档/其他
+      return `<article class="card">
+        <div class="thumb">文档</div>
+        <div class="body">
+          <h3>${item.title}</h3>
+          <p class="muted">${item.desc||''}</p>
+          <div>${tags}</div>
+          <p><a href="${item.url}" target="_blank">打开 / 下载</a></p>
+        </div>
+      </article>`;
+    }
+
+    function render(){
+      const q = $('#q').value.trim();
+      const filtered = items.filter(it => match(q, it));
+      const htmlAll = filtered.map(cardTpl).join('');
+      const htmlImg = filtered.filter(i=>i.type==='image').map(cardTpl).join('');
+      const htmlVid = filtered.filter(i=>i.type==='video').map(cardTpl).join('');
+      $('#list-all').innerHTML = htmlAll || '<p class="muted">没有找到匹配的资料，换个关键词试试～</p>';
+      $('#list-images').innerHTML = htmlImg || '<p class="muted">暂无图片。</p>';
+      $('#list-videos').innerHTML = htmlVid || '<p class="muted">暂无视频。</p>';
+    }
+
+    // ====== 事件 & 初始化 ======
+    $('#q').addEventListener('input', render);
+
+    // 顶部导航切换
+    $$('#nav a').forEach(a=>{
+      a.addEventListener('click', e=>{
+        e.preventDefault();
+        $$('#nav a').forEach(x=>x.classList.remove('active'));
+        a.classList.add('active');
+        const t = a.dataset.target;
+        $$('.section').forEach(s=>s.classList.remove('active'));
+        $('#sec-'+t).classList.add('active');
+        history.replaceState(null, '', '#'+t);
+      });
+    });
+
+    // 明暗主题切换
+    const themeBtn = $('#theme');
+    const saved = localStorage.getItem('theme');
+    if(saved === 'light') document.documentElement.classList.add('light');
+    themeBtn.onclick = () => {
+      document.documentElement.classList.toggle('light');
+      localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+    };
+
+    // 年份
+    $('#year').textContent = new Date().getFullYear();
+
+    // 初次渲染
+    render();
+  </script>
+</body>
+</html>
